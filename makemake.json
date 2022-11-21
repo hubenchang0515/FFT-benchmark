@@ -1,0 +1,35 @@
+{
+    "targets": [
+        {
+            "type": "executable",
+            "name": "fftw_demo",
+            "cxx": "g++",
+            "cxxflags": "-O2 -W -Wall -Wextra",
+            "libs": "-lfftw3",
+            "sources": [
+                "fftw_demo.cpp"
+            ]
+        },
+
+        {
+            "type": "executable",
+            "name": "cufftw_demo",
+            "cxx": "nvcc",
+            "cxxflags": "-O2",
+            "libs": "-lcufftw",
+            "sources": [
+                "cufftw_demo.cpp"
+            ]
+        },
+
+        {
+            "type": "executable",
+            "name": "myfft_demo",
+            "cxx": "g++",
+            "cxxflags": "-O2 -W -Wall -Wextra",
+            "sources": [
+                "myfft_demo.cpp"
+            ]
+        }
+    ]
+}

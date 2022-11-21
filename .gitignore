@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+cufftw_demo
+fftw_demo
+myfft_demo
