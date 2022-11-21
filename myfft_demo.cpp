@@ -96,18 +96,39 @@ std::vector<Complex> transformForFft(const std::vector<Complex>& in, int forward
 
 std::vector<Complex> fft(const std::vector<Complex>& coefficients)
 {
+    size_t n = coefficients.size();
+
+    // 长度不是2的整数次幂
+    if ((n & (n-1)) != 0)
+        return dft(coefficients);
+    
     return transformForFft(coefficients);
+        
 }
 
 std::vector<Complex> ifft(const std::vector<Complex>& values)
 {
     size_t n = values.size();
+    // 长度不是2的整数次幂
+    if ((n & (n-1)) != 0)
+        return idft(values);
+
     auto out = transformForFft(values, -1);
     for (auto& v : out)
     {
         v /= n;
     }
 
+    return out;
+}
+
+// 长度扩展为 2^n，不足的部分补0
+std::vector<Complex> expand(const std::vector<Complex>& in)
+{
+    size_t len = in.size();
+    size_t n = static_cast<size_t>(std::ceil(std::log(len) / std::log(2)));
+    auto out = in;
+    out.resize(std::pow(2,n), 0);
     return out;
 }
 
@@ -121,23 +142,18 @@ int main()
         coefficients[i].imag(i);
     }
 
-
     auto values = fft(coefficients);
-    for (size_t i = 0; i < N; i++)
+    for (auto& v : values)
     {
-        printf("%f + %fi\n", values[i].real(), values[i].imag());
+        printf("%f + %fi\n", v.real(), v.imag());
     }
+    printf("\n");
 
     coefficients = ifft(values);
 
-    for (size_t i = 0; i < N; i++)
+    for (auto& v : coefficients)
     {
-        printf("%f + %fi\n", coefficients[i].real(), coefficients[i].imag());
+        printf("%f + %fi\n", v.real(), v.imag());
     }
 
-    std::vector<Complex> odd;
-    std::vector<Complex> even;
-    split(coefficients, odd, even);
-
-    // printf("%zu %zu\n", odd.size(), even.size());
 }
