@@ -16,7 +16,7 @@ Complex omega(int k, int n)
     return std::complex{std::cos(angle), -std::sin(angle)};
 }
 
-// 多项式求值
+// 多项式求值 k0 + k1*x + k2*x^2 + k3 * x^3 + ... + k<n-1> * x^<n-1>
 Complex polynomialValue(const std::vector<Complex>& K, const Complex& w)
 {
     Complex v = 0;
@@ -27,6 +27,34 @@ Complex polynomialValue(const std::vector<Complex>& K, const Complex& w)
     }
 
     return v;
+}
+
+std::vector<Complex> transformForDft(const std::vector<Complex>& in, int forward=1)
+{
+    size_t n = in.size();
+    std::vector<Complex> out(n);
+    for(size_t i = 0; i < n; i++)
+    {
+        out[i] = polynomialValue(in, omega(forward * i, n));
+    }
+    return out;
+}
+
+std::vector<Complex> dft(const std::vector<Complex>& coefficients)
+{
+    return transformForDft(coefficients);
+}
+
+std::vector<Complex> idft(const std::vector<Complex>& values)
+{
+    size_t n = values.size();
+    auto out = transformForDft(values, -1);
+    for (auto& v : out)
+    {
+        v /= n;
+    }
+
+    return out;
 }
 
 // 拆分系数向量
@@ -43,46 +71,45 @@ void split(const std::vector<Complex>& A, std::vector<Complex>& even, std::vecto
     }
 }
 
-// k0 + k1*x + k2*x^2 + k3 * x^3 + ... + k<n-1> * x^<n-1>
-std::vector<Complex> dft(const std::vector<Complex>& coefficients)
+std::vector<Complex> transformForFft(const std::vector<Complex>& in, int forward=1)
 {
-    size_t n = coefficients.size();
-    std::vector<Complex> values(n);
-    for(size_t i = 0; i < n; i++)
+    size_t n = in.size();
+    if (n <= 1)
+        return in;
+
+    std::vector<Complex> evenIn;
+    std::vector<Complex> oddIn;
+    split(in, evenIn, oddIn);
+
+    auto evenOut = transformForFft(evenIn, forward);
+    auto oddOut = transformForFft(oddIn, forward);
+
+    std::vector<Complex> out(n);
+    for (size_t k =0; k < n/2; k++)
     {
-        values[i] = polynomialValue(coefficients, omega(i, n));
+        out[k] = evenOut[k] + omega(forward*k, n) * oddOut[k];
+        out[k + n/2] = evenOut[k] - omega(forward*k, n) * oddOut[k];
     }
-    return values;
+
+    return out;
 }
 
+std::vector<Complex> fft(const std::vector<Complex>& coefficients)
+{
+    return transformForFft(coefficients);
+}
 
-std::vector<Complex> idft(const std::vector<Complex>& values)
+std::vector<Complex> ifft(const std::vector<Complex>& values)
 {
     size_t n = values.size();
-    std::vector<Complex> coefficients(n);
-    for(size_t i = 0; i < n; i++)
+    auto out = transformForFft(values, -1);
+    for (auto& v : out)
     {
-        coefficients[i] = polynomialValue(values, omega(-i, n)) / static_cast<double>(n);
+        v /= n;
     }
-    return coefficients;
+
+    return out;
 }
-
-// std::vector<Complex> fft(const std::vector<Complex>& coefficients)
-// {
-//     size_t n = coefficients.size();
-//     if (n == 1)
-//         return {coefficients[0]};
-
-//     std::vector<Complex> values(n);
-//     for(size_t i = 0; i < n; i++)
-//     {
-//         std::vector<Complex> even;
-//         std::vector<Complex> odd;
-//         split(coefficients, even, odd);
-//     }
-//     return values;
-// }
-
 
 int main()
 {
@@ -95,13 +122,13 @@ int main()
     }
 
 
-    auto values = dft(coefficients);
+    auto values = fft(coefficients);
     for (size_t i = 0; i < N; i++)
     {
         printf("%f + %fi\n", values[i].real(), values[i].imag());
     }
 
-    coefficients = idft(values);
+    coefficients = ifft(values);
 
     for (size_t i = 0; i < N; i++)
     {
