@@ -2,7 +2,7 @@
 
 .PHONY: all install uninstall clean
 
-all: fftw_demo cufftw_demo myfft_demo
+all: fftw_demo cufftw_demo myfft_demo mycudafft_demo
 
 install: all
 
@@ -12,6 +12,7 @@ clean:
 	 rm -f fftw_demo.o
 	 rm -f cufftw_demo.o
 	 rm -f myfft_demo.o
+	 rm -f mycudafft_demo.o
 
 fftw_demo : fftw_demo.o  
 	g++ -o $@ $^ -lfftw3 
@@ -38,4 +39,66 @@ myfft_demo : myfft_demo.o
 
 myfft_demo.o: myfft_demo.cpp config.h
 	g++ -c  myfft_demo.cpp -O2 -W -Wall -Wextra 
+
+mycudafft_demo : mycudafft_demo.o  
+	nvcc -o $@ $^  
+
+mycudafft_demo.o : mycudafft_demo.cu \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda_runtime.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/host_config.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/builtin_types.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/device_types.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/host_defines.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/driver_types.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/vector_types.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/surface_types.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/texture_types.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/library_types.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/channel_descriptor.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda_runtime_api.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda_device_runtime_api.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/driver_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/vector_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/vector_functions.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/common_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/math_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/math_functions.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda_surface_types.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda_texture_types.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/device_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/device_functions.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/device_atomic_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/device_atomic_functions.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/device_double_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/device_double_functions.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_20_atomic_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_20_atomic_functions.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_32_atomic_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_32_atomic_functions.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_35_atomic_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_60_atomic_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_60_atomic_functions.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_20_intrinsics.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_20_intrinsics.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_30_intrinsics.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_30_intrinsics.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_32_intrinsics.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_32_intrinsics.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_35_intrinsics.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_61_intrinsics.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/sm_61_intrinsics.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/sm_70_rt.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/sm_70_rt.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/sm_80_rt.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/sm_80_rt.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/sm_90_rt.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/sm_90_rt.hpp \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/surface_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/texture_fetch_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/texture_indirect_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/surface_indirect_functions.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/cudacc_ext.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/device_launch_parameters.h \
+    config.h
+	nvcc -c  mycudafft_demo.cu -O2 
 

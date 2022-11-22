@@ -30,6 +30,16 @@
             "sources": [
                 "myfft_demo.cpp"
             ]
+        },
+
+        {
+            "type": "executable",
+            "name": "mycudafft_demo",
+            "cxx": "nvcc",
+            "cxxflags": "-O2",
+            "sources": [
+                "mycudafft_demo.cu"
+            ]
         }
     ]
 }

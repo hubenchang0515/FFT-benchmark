@@ -33,3 +33,4 @@
 cufftw_demo
 fftw_demo
 myfft_demo
+mycudafft_demo

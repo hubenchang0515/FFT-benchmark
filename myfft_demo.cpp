@@ -13,7 +13,7 @@ using Complex = std::complex<double>;
 Complex omega(int k, int n)
 {
     double angle = 2.0*pi*k/n;
-    return std::complex{std::cos(angle), -std::sin(angle)};
+    return Complex{std::cos(angle), -std::sin(angle)};
 }
 
 // 多项式求值 k0 + k1*x + k2*x^2 + k3 * x^3 + ... + k<n-1> * x^<n-1>
@@ -57,7 +57,7 @@ std::vector<Complex> idft(const std::vector<Complex>& values)
     return out;
 }
 
-// 拆分系数向量
+// 拆分系数向量，返回两个ector
 void split(const std::vector<Complex>& A, std::vector<Complex>& even, std::vector<Complex>& odd)
 {
     size_t n = A.size();
@@ -71,7 +71,32 @@ void split(const std::vector<Complex>& A, std::vector<Complex>& even, std::vecto
     }
 }
 
-std::vector<Complex> transformForFft(const std::vector<Complex>& in, int forward=1)
+// 在原 vector 上拆分系数向量
+void split(std::vector<Complex>::iterator first, std::vector<Complex>::iterator last)
+{
+    size_t n = last - first;
+    std::vector<Complex> temp{first, last}; // TODO:能否不使用临时变量
+    for (size_t i = 0; i < n; i+=2)
+    {
+        first[i/2] = temp[i];
+        first[i/2+n/2] = temp[i+1];
+    }
+}
+
+// 循环拆分系数向量直到最底层
+void splitAll(std::vector<Complex>& data)
+{
+    size_t n = data.size();
+
+    for (size_t groupSize = n; groupSize > 2; groupSize = groupSize/2)
+    {
+        for (size_t i = 0; i < n; i+=groupSize)
+            split(data.begin() + i, data.begin() + i + groupSize);
+    }
+}
+
+// 递归方案
+std::vector<Complex> transformForFft1(const std::vector<Complex>& in, int forward=1)
 {
     size_t n = in.size();
     if (n <= 1)
@@ -81,18 +106,53 @@ std::vector<Complex> transformForFft(const std::vector<Complex>& in, int forward
     std::vector<Complex> oddIn;
     split(in, evenIn, oddIn);
 
-    auto evenOut = transformForFft(evenIn, forward);
-    auto oddOut = transformForFft(oddIn, forward);
+    auto evenOut = transformForFft1(evenIn, forward);
+    auto oddOut = transformForFft1(oddIn, forward);
 
     std::vector<Complex> out(n);
     for (size_t k =0; k < n/2; k++)
     {
-        out[k] = evenOut[k] + omega(forward*k, n) * oddOut[k];
-        out[k + n/2] = evenOut[k] - omega(forward*k, n) * oddOut[k];
+        auto w = omega(forward*k, n);
+        out[k] = evenOut[k] + w * oddOut[k];
+        out[k + n/2] = evenOut[k] - w * oddOut[k];
     }
 
     return out;
 }
+
+// 非递归方案，蝶形算法
+std::vector<Complex> transformForFft2(const std::vector<Complex>& in, int forward=1)
+{
+    size_t n = in.size();
+    auto out = in;
+    splitAll(out);
+    for (size_t groupSize = 2; groupSize <= n; groupSize *= 2)
+    {
+        // 分组计算
+        //    0 1 2 3       0=0+1 1=2+3 2=0-1 3=2-3
+        //  0 2  |  1 3     0=0+2 2=0-2 1=1+3 3=1-3
+        // 0 | 2 | 1 | 3    0=0 2=2 1=1 3=3
+        auto temp = out; // TODO:能否不使用临时变量
+        for (size_t k = 0; k + groupSize/2 < n; k+=1)
+        {
+            size_t groupIndex = k % groupSize;
+
+            // 右半边和左半边一起计算出，因此右半直接跳过
+            if (groupIndex >= groupSize/2)
+            {
+                k += groupSize/2 - 1;
+                continue;
+            }
+
+            auto w = omega(forward*groupIndex, groupSize);
+            out[k] = temp[k] + w * temp[k + groupSize/2]; // 左半
+            out[k + groupSize/2] = temp[k] - w * temp[k + groupSize/2]; // 右半
+        }
+    }
+
+    return out;
+}
+
 
 std::vector<Complex> fft(const std::vector<Complex>& coefficients)
 {
@@ -102,7 +162,7 @@ std::vector<Complex> fft(const std::vector<Complex>& coefficients)
     if ((n & (n-1)) != 0)
         return dft(coefficients);
     
-    return transformForFft(coefficients);
+    return transformForFft2(coefficients);
         
 }
 
@@ -113,7 +173,7 @@ std::vector<Complex> ifft(const std::vector<Complex>& values)
     if ((n & (n-1)) != 0)
         return idft(values);
 
-    auto out = transformForFft(values, -1);
+    auto out = transformForFft2(values, -1);
     for (auto& v : out)
     {
         v /= n;
@@ -156,4 +216,5 @@ int main()
         printf("%f + %fi\n", v.real(), v.imag());
     }
 
+    return 0;
 }
