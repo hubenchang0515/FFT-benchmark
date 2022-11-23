@@ -160,7 +160,7 @@ void splitAll(Complex** devData, Complex** devTemp, size_t n)
     // log(n)轮计算
     for (size_t groupSize = n; groupSize > 2; groupSize = groupSize/2)
     {
-        size_t blocks = groupSize/2 <= 1024 ? 1 : (groupSize/2 + 1023 / 1024);
+        size_t blocks = groupSize/2 <= 1024 ? 1 : ((groupSize/2 + 1023) / 1024);
         size_t threads = groupSize/2 <= 1024 ? (groupSize/2) : 1024;
         for (size_t i = 0; i < n; i+=groupSize)
         {
@@ -206,7 +206,7 @@ void fft(Complex* data, size_t n, int forward=1)
     // 将内存数据拷贝到显存
     splitAll(&devData, &devTemp, n);
 
-    size_t blocks = n <= 1024 ? 1 : (n + 1023 / 1024);
+    size_t blocks = n <= 1024 ? 1 : ((n + 1023) / 1024);
     size_t threads = n <= 1024 ? n : 1024;
     for (size_t groupSize = 2; groupSize <= n; groupSize *= 2)
     {
