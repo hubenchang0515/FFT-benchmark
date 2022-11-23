@@ -193,8 +193,6 @@ void combine(Complex* data, size_t n, size_t groupSize, Complex* temp, int forwa
 
 void fft(Complex* data, size_t n, int forward=1)
 {
-    Complex* temp = new Complex[n];
-
     // 分配显存
     Complex* devData;
     Complex* devTemp;

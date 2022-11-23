@@ -36,7 +36,7 @@
             "type": "executable",
             "name": "mycudafft_demo",
             "cxx": "nvcc",
-            "cxxflags": "-O2",
+            "cxxflags": "-Xcompiler -O2,-W,-Wall,-Wextra",
             "sources": [
                 "mycudafft_demo.cu"
             ]

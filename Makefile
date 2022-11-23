@@ -99,6 +99,29 @@ mycudafft_demo.o : mycudafft_demo.cu \
     /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/surface_indirect_functions.h \
     /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/crt/cudacc_ext.h \
     /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/device_launch_parameters.h \
-    config.h
-	nvcc -c  mycudafft_demo.cu -O2 
+    config.h \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/cmath \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/limits \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/type_traits \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/cstddef \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/version \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/__config \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/__config \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/__pragma_push \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/__pragma_push \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/__undef_macros \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/version \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/__pragma_pop \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/__pragma_pop \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/cstddef \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/type_traits \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/limits \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/cmath \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/complex \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/cstdint \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/climits \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/climits \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/cstdint \
+    /usr/local/cuda-11.8/bin/../targets/x86_64-linux/include/cuda/std/detail/libcxx/include/complex
+	nvcc -c  mycudafft_demo.cu -Xcompiler -O2,-W,-Wall,-Wextra 
 
