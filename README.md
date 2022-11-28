@@ -15,9 +15,9 @@ OS : Ubuntu 22.04.1 LTS
 | FFTW      | 2^10        | real    0m0.001s         |
 |           | 2^20        | real    0m0.050s         |
 |           | 2^25        | real    0m2.214s         |
-| CPP自编码  | 2^10        | real    0m0.005s         |
-|           | 2^20        | real    0m0.552s         |
-|           | 2^25        | real    0m25.250s        |
+| CPP自编码  | 2^10        | real    0m0.002s         |
+|           | 2^20        | real    0m0.449s         |
+|           | 2^25        | real    0m18.309s        |
 | cuFFTW    | 2^10        | real    0m1.275s (冷启动) |  
 |           |             | real    0m0.112s (热启动) |
 |           | 2^20        | real    0m1.301s (冷启动) |  

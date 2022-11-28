@@ -57,7 +57,7 @@ std::vector<Complex> idft(const std::vector<Complex>& values)
     return out;
 }
 
-// 拆分系数向量，返回两个ector
+// 拆分系数向量，返回两个 vector
 void split(const std::vector<Complex>& A, std::vector<Complex>& even, std::vector<Complex>& odd)
 {
     size_t n = A.size();
@@ -71,28 +71,44 @@ void split(const std::vector<Complex>& A, std::vector<Complex>& even, std::vecto
     }
 }
 
-// 在原 vector 上拆分系数向量
-void split(std::vector<Complex>::iterator first, std::vector<Complex>::iterator last)
-{
-    size_t n = last - first;
-    std::vector<Complex> temp{first, last}; // TODO:能否不使用临时变量
-    for (size_t i = 0; i < n; i+=2)
-    {
-        first[i/2] = temp[i];
-        first[i/2+n/2] = temp[i+1];
-    }
-}
-
 // 循环拆分系数向量直到最底层
-void splitAll(std::vector<Complex>& data)
+// 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+// 0  2  4  6  8 10 12 14  1  3  5  7  9 11 13 15
+// 0  4  8 12  2  6 10 14  1  5  9 13  3  7 11 15
+// 0  8  4 12  2 10  6 14  1  9  5 13  3 11  7 15
+// 对比第一层和最后一层可以发现相对应的位置是交换的，需要找到交换位置的算法
+// 可以逐层计算出 log2(n) 层后的 index 交换即可
+std::vector<Complex> splitAll(const std::vector<Complex>& data)
 {
     size_t n = data.size();
+    std::vector<Complex> out(n);
 
-    for (size_t groupSize = n; groupSize > 2; groupSize = groupSize/2)
+    for (size_t i = 0; i < n; i ++)
     {
-        for (size_t i = 0; i < n; i+=groupSize)
-            split(data.begin() + i, data.begin() + i + groupSize);
+        size_t index = i;
+        size_t groupSize = n;
+        size_t group = index / groupSize;
+        size_t groupIndex = index % groupSize;
+        while (groupSize > 1)
+        {
+            if ((groupIndex & 1) == 0)  // 偶数
+                group *= 2;
+            else                        // 奇数
+                group = group*2 + 1;
+            
+            groupIndex /= 2;
+            groupSize /= 2;
+        }
+
+        index = group * groupSize + groupIndex;
+        if (i <= index) // 避免重复交换导致再换回来
+        {
+            out[i] = data[index];
+            out[index] = data[i];
+        }
     }
+
+    return out;
 }
 
 // 递归方案
@@ -124,15 +140,15 @@ std::vector<Complex> transformForFft1(const std::vector<Complex>& in, int forwar
 std::vector<Complex> transformForFft2(const std::vector<Complex>& in, int forward=1)
 {
     size_t n = in.size();
-    auto out = in;
-    splitAll(out);
+    std::vector<Complex> out = splitAll(in);
+    std::vector<Complex> temp(n);
     for (size_t groupSize = 2; groupSize <= n; groupSize *= 2)
     {
         // 分组计算
         //    0 1 2 3       0=0+1 1=2+3 2=0-1 3=2-3
         //  0 2  |  1 3     0=0+2 2=0-2 1=1+3 3=1-3
         // 0 | 2 | 1 | 3    0=0 2=2 1=1 3=3
-        auto temp = out; // TODO:能否不使用临时变量
+        std::swap(out, temp);
         for (size_t k = 0; k + groupSize/2 < n; k+=1)
         {
             size_t groupIndex = k % groupSize;
@@ -217,4 +233,5 @@ int main()
     }
 
     return 0;
+
 }
